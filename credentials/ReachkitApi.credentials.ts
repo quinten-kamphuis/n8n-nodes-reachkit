@@ -10,13 +10,13 @@ export class ReachkitApi implements ICredentialType {
 
 	displayName = 'Reachkit API';
 
-	// Link to your community node's README
-	documentationUrl = 'https://github.com/org/-reachkit?tab=readme-ov-file#credentials';
+	// Link to Reachkit API documentation
+	documentationUrl = 'https://reachkit.ai/help/articles/n8n-integration';
 
 	properties: INodeProperties[] = [
 		{
-			displayName: 'Access Token',
-			name: 'accessToken',
+			displayName: 'API Key',
+			name: 'apiKey',
 			type: 'string',
 			typeOptions: { password: true },
 			required: true,
@@ -28,7 +28,7 @@ export class ReachkitApi implements ICredentialType {
 		type: 'generic',
 		properties: {
 			headers: {
-				Authorization: '=Bearer {{$credentials.accessToken}}',
+				Authorization: '=Bearer {{$credentials.apiKey}}',
 			},
 		},
 	};
@@ -36,7 +36,7 @@ export class ReachkitApi implements ICredentialType {
 	test: ICredentialTestRequest = {
 		request: {
 			baseURL: 'https://reachkit.ai/api/v1',
-			url: '/v1/user',
+			url: '/campaigns',
 		},
 	};
 }

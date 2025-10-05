@@ -1,6 +1,10 @@
-import { NodeConnectionType, type INodeType, type INodeTypeDescription } from 'n8n-workflow';
-import { userDescription } from './resources/user';
-import { companyDescription } from './resources/company';
+import { type INodeType, type INodeTypeDescription } from 'n8n-workflow';
+import { blocklistDescription } from './resources/blocklist';
+import { campaignDescription } from './resources/campaign';
+import { conversationDescription } from './resources/conversation';
+import { inboxDescription } from './resources/inbox';
+import { leadDescription } from './resources/lead';
+import { sequenceDescription } from './resources/sequence';
 
 export class Reachkit implements INodeType {
 	description: INodeTypeDescription = {
@@ -15,8 +19,8 @@ export class Reachkit implements INodeType {
 			name: 'Reachkit',
 		},
 		usableAsTool: true,
-		inputs: [NodeConnectionType.Main],
-		outputs: [NodeConnectionType.Main],
+		inputs: ['main'],
+		outputs: ['main'],
 		credentials: [{ name: 'reachkitApi', required: true }],
 		requestDefaults: {
 			baseURL: 'https://reachkit.ai/api/v1',
@@ -33,18 +37,38 @@ export class Reachkit implements INodeType {
 				noDataExpression: true,
 				options: [
 					{
-						name: 'User',
-						value: 'user',
+						name: 'Blocklist',
+						value: 'blocklist',
 					},
 					{
-						name: 'Company',
-						value: 'company',
+						name: 'Campaign',
+						value: 'campaign',
+					},
+					{
+						name: 'Conversation',
+						value: 'conversation',
+					},
+					{
+						name: 'Inbox',
+						value: 'inbox',
+					},
+					{
+						name: 'Lead',
+						value: 'lead',
+					},
+					{
+						name: 'Sequence',
+						value: 'sequence',
 					},
 				],
-				default: 'user',
+				default: 'campaign',
 			},
-			...userDescription,
-			...companyDescription,
+			...blocklistDescription,
+			...campaignDescription,
+			...conversationDescription,
+			...inboxDescription,
+			...leadDescription,
+			...sequenceDescription,
 		],
 	};
 }
