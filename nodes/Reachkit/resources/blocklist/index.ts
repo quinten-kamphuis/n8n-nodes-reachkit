@@ -34,7 +34,7 @@ export const blocklistDescription: INodeProperties[] = [
 				routing: {
 					request: {
 						method: 'GET',
-						url: '=/blocklist/{{$parameter.blocklistId}}/check',
+						url: '/blocklist/check',
 					},
 				},
 			},
@@ -75,11 +75,11 @@ export const blocklistDescription: INodeProperties[] = [
 		displayOptions: {
 			show: {
 				resource: ['blocklist'],
-				operation: ['add', 'check'],
+				operation: ['add'],
 			},
 		},
 		default: '',
-		description: 'Email address to add to blocklist or check',
+		description: 'Email address to add to blocklist',
 		routing: {
 			send: {
 				type: 'body',
@@ -89,9 +89,10 @@ export const blocklistDescription: INodeProperties[] = [
 	},
 	// Check operation fields
 	{
-		displayName: 'Blocklist ID',
-		name: 'blocklistId',
+		displayName: 'Email',
+		name: 'email',
 		type: 'string',
+		placeholder: 'name@email.com',
 		required: true,
 		displayOptions: {
 			show: {
@@ -100,7 +101,13 @@ export const blocklistDescription: INodeProperties[] = [
 			},
 		},
 		default: '',
-		description: 'The ID of the blocklist to check against',
+		description: 'Email address to check in blocklist',
+		routing: {
+			send: {
+				type: 'query',
+				property: 'email',
+			},
+		},
 	},
 	// Delete operation fields
 	{
