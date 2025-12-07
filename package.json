@@ -1,6 +1,6 @@
 {
 	"name": "n8n-nodes-reachkit",
-	"version": "0.1.1",
+	"version": "0.1.2",
 	"description": "n8n community node to work with the Reachkit API - cold email outreach automation",
 	"license": "MIT",
 	"homepage": "https://github.com/quinten-kamphuis/n8n-nodes-reachkit",

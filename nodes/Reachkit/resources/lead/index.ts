@@ -24,6 +24,26 @@ export const leadDescription: INodeProperties[] = [
 						method: 'POST',
 						url: '=/campaigns/{{$parameter.campaignId}}/leads',
 					},
+					send: {
+						preSend: [
+							async function (this, requestOptions) {
+								const additionalFields = this.getNodeParameter('additionalFields', {}) as {
+									variables?: { variable?: Array<{ key: string; value: string }> };
+								};
+
+								if (additionalFields.variables?.variable?.length) {
+									const variables: Record<string, string> = {};
+									for (const item of additionalFields.variables.variable) {
+										variables[item.key] = item.value;
+									}
+									requestOptions.body = requestOptions.body || {};
+									(requestOptions.body as Record<string, unknown>).variables = variables;
+								}
+
+								return requestOptions;
+							},
+						],
+					},
 				},
 			},
 			{
@@ -218,14 +238,6 @@ export const leadDescription: INodeProperties[] = [
 						],
 					},
 				],
-				routing: {
-					send: {
-						type: 'body',
-						property: 'variables',
-						value:
-							'={{$parameter.additionalFields.variables?.variable?.reduce((acc, item) => ({...acc, [item.key]: item.value}), {})}}',
-					},
-				},
 			},
 		],
 	},
