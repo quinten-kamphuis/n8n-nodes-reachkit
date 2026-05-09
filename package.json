@@ -1,6 +1,6 @@
 {
 	"name": "n8n-nodes-reachkit",
-	"version": "0.1.2",
+	"version": "0.2.0",
 	"description": "n8n community node to work with the Reachkit API - cold email outreach automation",
 	"license": "MIT",
 	"homepage": "https://github.com/quinten-kamphuis/n8n-nodes-reachkit",
@@ -26,8 +26,9 @@
 		"dev": "n8n-node dev",
 		"lint": "n8n-node lint",
 		"lint:fix": "n8n-node lint --fix",
+		"validate": "node scripts/validate-node.mjs",
 		"release": "n8n-node release",
-		"prepublishOnly": "n8n-node prerelease"
+		"prepublishOnly": "n8n-node prerelease && npm run validate"
 	},
 	"files": [
 		"dist"

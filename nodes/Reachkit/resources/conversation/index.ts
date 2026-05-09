@@ -15,6 +15,59 @@ export const conversationDescription: INodeProperties[] = [
 		},
 		options: [
 			{
+				name: 'Create',
+				value: 'create',
+				action: 'Create a conversation',
+				description: 'Create a new conversation and send the first email',
+				routing: {
+					request: {
+						method: 'POST',
+						url: '/unibox/conversations',
+					},
+					send: {
+						preSend: [
+							async function (this, requestOptions) {
+								const toRecipients = this.getNodeParameter('toRecipients', '') as string;
+								const toList = toRecipients
+									.split(',')
+									.map((s) => s.trim())
+									.filter((s) => s)
+									.map((email) => ({ email, name: null }));
+
+								const body = (requestOptions.body || {}) as Record<string, unknown>;
+								body.to = toList;
+								requestOptions.body = body;
+								return requestOptions;
+							},
+						],
+					},
+				},
+			},
+			{
+				name: 'Download Attachment',
+				value: 'downloadAttachment',
+				action: 'Download a conversation attachment',
+				description: 'Download an attachment from a conversation message',
+				routing: {
+					request: {
+						method: 'GET',
+						url: '=/unibox/conversations/{{$parameter.conversationId}}/attachments/{{$parameter.attachmentId}}',
+						encoding: 'arraybuffer',
+						returnFullResponse: true,
+					},
+					output: {
+						postReceive: [
+							{
+								type: 'binaryData',
+								properties: {
+									destinationProperty: 'data',
+								},
+							},
+						],
+					},
+				},
+			},
+			{
 				name: 'Get',
 				value: 'get',
 				action: 'Get a conversation',
@@ -50,10 +103,42 @@ export const conversationDescription: INodeProperties[] = [
 					},
 				},
 			},
+			{
+				name: 'Update',
+				value: 'update',
+				action: 'Update a conversation',
+				description: 'Update label override or read state',
+				routing: {
+					request: {
+						method: 'PATCH',
+						url: '=/unibox/conversations/{{$parameter.conversationId}}',
+					},
+					send: {
+						preSend: [
+							async function (this, requestOptions) {
+								const fields = this.getNodeParameter('updateFields', {}) as {
+									label_override?: string;
+									is_read?: boolean;
+								};
+
+								const body: Record<string, unknown> = {};
+								if (fields.label_override !== undefined) {
+									body.label_override =
+										fields.label_override === '__clear__' ? null : fields.label_override;
+								}
+								if (fields.is_read !== undefined) body.is_read = fields.is_read;
+
+								requestOptions.body = body;
+								return requestOptions;
+							},
+						],
+					},
+				},
+			},
 		],
 		default: 'getAll',
 	},
-	// Conversation ID for get and reply operations
+	// Conversation ID for get, reply, update, downloadAttachment
 	{
 		displayName: 'Conversation ID',
 		name: 'conversationId',
@@ -62,11 +147,112 @@ export const conversationDescription: INodeProperties[] = [
 		displayOptions: {
 			show: {
 				resource: ['conversation'],
-				operation: ['get', 'reply'],
+				operation: ['get', 'reply', 'update', 'downloadAttachment'],
 			},
 		},
 		default: '',
 		description: 'The ID of the conversation',
+	},
+	// Download Attachment fields
+	{
+		displayName: 'Attachment ID',
+		name: 'attachmentId',
+		type: 'string',
+		required: true,
+		displayOptions: {
+			show: {
+				resource: ['conversation'],
+				operation: ['downloadAttachment'],
+			},
+		},
+		default: '',
+		description: 'The ID of the attachment to download',
+	},
+	// Create operation fields
+	{
+		displayName: 'To',
+		name: 'toRecipients',
+		type: 'string',
+		required: true,
+		displayOptions: {
+			show: {
+				resource: ['conversation'],
+				operation: ['create'],
+			},
+		},
+		default: '',
+		placeholder: 'jane@example.com, john@example.com',
+		description: 'Comma-separated list of recipient email addresses',
+	},
+	{
+		displayName: 'Subject',
+		name: 'subject',
+		type: 'string',
+		required: true,
+		displayOptions: {
+			show: {
+				resource: ['conversation'],
+				operation: ['create'],
+			},
+		},
+		default: '',
+		description: 'Email subject line',
+		routing: {
+			send: {
+				type: 'body',
+				property: 'subject',
+			},
+		},
+	},
+	{
+		displayName: 'Content',
+		name: 'createContent',
+		type: 'string',
+		typeOptions: { rows: 4 },
+		required: true,
+		displayOptions: {
+			show: {
+				resource: ['conversation'],
+				operation: ['create'],
+			},
+		},
+		default: '',
+		description: 'HTML content of the email',
+		routing: {
+			send: {
+				type: 'body',
+				property: 'content',
+			},
+		},
+	},
+	{
+		displayName: 'Additional Fields',
+		name: 'createAdditionalFields',
+		type: 'collection',
+		placeholder: 'Add Field',
+		default: {},
+		displayOptions: {
+			show: {
+				resource: ['conversation'],
+				operation: ['create'],
+			},
+		},
+		options: [
+			{
+				displayName: 'Inbox ID',
+				name: 'inbox_id',
+				type: 'string',
+				default: '',
+				description:
+					'ID of the inbox to send from. If omitted, the first active inbox in the workspace is used.',
+				routing: {
+					send: {
+						type: 'body',
+						property: 'inbox_id',
+					},
+				},
+			},
+		],
 	},
 	// Reply operation fields
 	{
@@ -91,6 +277,52 @@ export const conversationDescription: INodeProperties[] = [
 				property: 'content',
 			},
 		},
+	},
+	// Update operation fields
+	{
+		displayName: 'Update Fields',
+		name: 'updateFields',
+		type: 'collection',
+		placeholder: 'Add Field',
+		default: {},
+		displayOptions: {
+			show: {
+				resource: ['conversation'],
+				operation: ['update'],
+			},
+		},
+		options: [
+			{
+				displayName: 'Is Read',
+				name: 'is_read',
+				type: 'boolean',
+				default: true,
+				description:
+					'Whether to mark every message in the conversation as read (true) or unread (false). Setting to false surfaces the thread back into triage.',
+			},
+			{
+				displayName: 'Label Override',
+				name: 'label_override',
+				type: 'options',
+				options: [
+					{ name: 'Clear (Revert to AI)', value: '__clear__' },
+					{ name: 'Interested', value: 'interested' },
+					{ name: 'Left Company', value: 'left_company' },
+					{ name: 'Meeting Requested', value: 'meeting_requested' },
+					{ name: 'Needs More Info', value: 'needs_more_info' },
+					{ name: 'Neutral', value: 'neutral' },
+					{ name: 'Not Interested', value: 'not_interested' },
+					{ name: 'Out of Office', value: 'out_of_office' },
+					{ name: 'Question', value: 'question' },
+					{ name: 'Referral', value: 'referral' },
+					{ name: 'Unsubscribe', value: 'unsubscribe' },
+					{ name: 'Wrong Person', value: 'wrong_person' },
+				],
+				default: 'interested',
+				description:
+					'Manually set the conversation label. Choose "Clear" to revert to the AI-classified label.',
+			},
+		],
 	},
 	// Get Many operation fields
 	{
