@@ -1,4 +1,4 @@
-import { type INodeType, type INodeTypeDescription } from 'n8n-workflow';
+import { NodeConnectionTypes, type INodeType, type INodeTypeDescription } from 'n8n-workflow';
 import { blocklistDescription } from './resources/blocklist';
 import { campaignDescription } from './resources/campaign';
 import { conversationDescription } from './resources/conversation';
@@ -19,8 +19,8 @@ export class Reachkit implements INodeType {
 			name: 'Reachkit',
 		},
 		usableAsTool: true,
-		inputs: ['main'],
-		outputs: ['main'],
+		inputs: [NodeConnectionTypes.Main],
+		outputs: [NodeConnectionTypes.Main],
 		credentials: [{ name: 'reachkitApi', required: true }],
 		requestDefaults: {
 			baseURL: 'https://reachkit.ai/api/v1',

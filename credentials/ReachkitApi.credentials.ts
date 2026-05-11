@@ -1,5 +1,6 @@
 import type {
 	IAuthenticateGeneric,
+	Icon,
 	ICredentialTestRequest,
 	ICredentialType,
 	INodeProperties,
@@ -10,7 +11,11 @@ export class ReachkitApi implements ICredentialType {
 
 	displayName = 'Reachkit API';
 
-	// Link to Reachkit API documentation
+	icon: Icon = {
+		light: 'file:../nodes/Reachkit/reachkit.svg',
+		dark: 'file:../nodes/Reachkit/reachkit.dark.svg',
+	};
+
 	documentationUrl = 'https://reachkit.ai/help/articles/n8n-integration';
 
 	properties: INodeProperties[] = [
