@@ -15,10 +15,10 @@ export const blocklistDescription: INodeProperties[] = [
 		},
 		options: [
 			{
-				name: 'Add',
+				name: 'Add Entry',
 				value: 'add',
-				action: 'Add to blocklist',
-				description: 'Add an email to the blocklist',
+				action: 'Add entry to blocklist',
+				description: 'Add an email or domain to the blocklist',
 				routing: {
 					request: {
 						method: 'POST',
@@ -27,10 +27,38 @@ export const blocklistDescription: INodeProperties[] = [
 				},
 			},
 			{
+				name: 'Bulk Add Entries',
+				value: 'bulkAdd',
+				action: 'Bulk add entries to blocklist',
+				description: 'Add multiple emails or domains to the blocklist in one request',
+				routing: {
+					request: {
+						method: 'POST',
+						url: '/blocklist',
+					},
+					send: {
+						preSend: [
+							async function (this, requestOptions) {
+								const raw = this.getNodeParameter('entries', '') as string | string[];
+								const entries = Array.isArray(raw)
+									? raw.map((s) => String(s).trim()).filter((s) => s)
+									: String(raw)
+											.split(',')
+											.map((s) => s.trim())
+											.filter((s) => s);
+								requestOptions.body = { entries };
+								return requestOptions;
+							},
+						],
+					},
+				},
+			},
+			{
 				name: 'Check',
 				value: 'check',
 				action: 'Check if email is blocked',
-				description: 'Check if an email is in the blocklist',
+				description:
+					"Check if an email is blocked. Returns true if the email matches an entry directly, or if its domain (or any parent domain) is on the blocklist.",
 				routing: {
 					request: {
 						method: 'GET',
@@ -42,7 +70,7 @@ export const blocklistDescription: INodeProperties[] = [
 				name: 'Delete',
 				value: 'delete',
 				action: 'Remove from blocklist',
-				description: 'Remove an email from the blocklist',
+				description: 'Remove an entry from the blocklist',
 				routing: {
 					request: {
 						method: 'DELETE',
@@ -67,10 +95,10 @@ export const blocklistDescription: INodeProperties[] = [
 	},
 	// Add operation fields
 	{
-		displayName: 'Email',
+		displayName: 'Email or Domain',
 		name: 'email',
 		type: 'string',
-		placeholder: 'name@email.com',
+		placeholder: 'jane@acme.com or acme.com',
 		required: true,
 		displayOptions: {
 			show: {
@@ -79,13 +107,31 @@ export const blocklistDescription: INodeProperties[] = [
 			},
 		},
 		default: '',
-		description: 'Email address to add to blocklist',
+		description:
+			'Email or domain to block. A bare domain (no @) blocks every address on that domain and its subdomains.',
 		routing: {
 			send: {
 				type: 'body',
-				property: 'email',
+				property: 'value',
 			},
 		},
+	},
+	// Bulk Add operation fields
+	{
+		displayName: 'Entries',
+		name: 'entries',
+		type: 'string',
+		required: true,
+		displayOptions: {
+			show: {
+				resource: ['blocklist'],
+				operation: ['bulkAdd'],
+			},
+		},
+		default: '',
+		placeholder: 'jane@acme.com, competitor.com, evil.io',
+		description:
+			'Emails and/or domains to block. Accepts a comma-separated string, or an expression that resolves to an array. Invalid entries are silently dropped by the API.',
 	},
 	// Check operation fields
 	{
