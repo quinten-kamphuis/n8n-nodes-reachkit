@@ -360,13 +360,27 @@ export const campaignDescription: INodeProperties[] = [
 				displayName: 'Daily Limit',
 				name: 'daily_limit',
 				type: 'number',
-				typeOptions: { minValue: 0 },
-				default: 0,
-				description: 'Total daily sending across all inboxes',
+				typeOptions: { minValue: 1 },
+				default: 100,
+				description:
+					'Total daily sending across all inboxes. Only applied when Daily Limit Enabled is on; the value is retained while the cap is off.',
 				routing: {
 					send: {
 						type: 'body',
 						property: 'daily_limit',
+					},
+				},
+			},
+			{
+				displayName: 'Daily Limit Enabled',
+				name: 'daily_limit_enabled',
+				type: 'boolean',
+				default: true,
+				description: 'Whether the daily sending cap is applied. Turn off to send uncapped.',
+				routing: {
+					send: {
+						type: 'body',
+						property: 'daily_limit_enabled',
 					},
 				},
 			},

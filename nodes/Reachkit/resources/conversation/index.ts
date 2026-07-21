@@ -312,6 +312,7 @@ export const conversationDescription: INodeProperties[] = [
 					{ name: 'Needs More Info', value: 'needs_more_info' },
 					{ name: 'Neutral', value: 'neutral' },
 					{ name: 'Not Interested', value: 'not_interested' },
+					{ name: 'Not Now', value: 'not_now' },
 					{ name: 'Out of Office', value: 'out_of_office' },
 					{ name: 'Question', value: 'question' },
 					{ name: 'Referral', value: 'referral' },

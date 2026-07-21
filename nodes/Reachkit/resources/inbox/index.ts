@@ -157,17 +157,6 @@ export const inboxDescription: INodeProperties[] = [
 				},
 			},
 			{
-				displayName: 'Signature',
-				name: 'signature',
-				type: 'string',
-				typeOptions: { rows: 3 },
-				default: '',
-				description: 'Signature appended to the bottom of every outgoing email',
-				routing: {
-					send: { type: 'body', property: 'signature' },
-				},
-			},
-			{
 				displayName: 'Warming',
 				name: 'is_warming',
 				type: 'boolean',
