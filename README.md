@@ -74,7 +74,7 @@ To use this node, you need a Reachkit API key.
 
 The node uses Bearer token authentication. Simply paste your API key in the credentials configuration.
 
-**Note**: API access is available exclusively for users on the Professional and Agency plans.
+**Note**: API access is included in every Reachkit plan.
 
 ## Compatibility
 
